@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import home
+from .views import chat_room
 
 urlpatterns = [
-    path('home/', home, name='home'),
+    path('chat_room/', chat_room, name='chat_room'),
 ]

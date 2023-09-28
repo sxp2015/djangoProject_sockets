@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Room</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/home.css' %}">
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.js"></script>
+</head>
+<body>
+<div class="chat-container">
+    <div class="chat-header">
+        Chat Room
+    </div>
+    <div class="chat-body" id="chat-body">
+    </div>
+    <div class="input-box">
+        <input type="text" id="message-input" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>&nbsp;&nbsp;
+        <button onclick="closeConnect()">Close</button>
+    </div>
+</div>
+
+<script>
+    // JavaScript代码
+
+    socket = new WebSocket("ws://127.0.0.1:8000/room/{{ chat_room_num }}/")
+    // 收到服务器回复的处理
+    socket.onmessage = function (e) {
+        let chatBody = document.getElementById('chat-body');
+        let newMessage = document.createElement('div');
+        newMessage.className = 'message';
+        newMessage.innerHTML = '<span class="user">User:</span> ' + e.data;
+        chatBody.appendChild(newMessage);
+    }
+
+    // 连接之后自动触发 （服务端执行self.accept()）
+    socket.onopen = function (e) {
+        let chatBody = document.getElementById('chat-body');
+        let newMessage = document.createElement('div');
+        newMessage.className = 'message';
+        newMessage.innerHTML = '<span>连接成功</span> ';
+        chatBody.appendChild(newMessage);
+    }
+
+    // 服务器主动关闭触发
+    socket.onclose = function (e) {
+        let chatBody = document.getElementById('chat-body');
+        let newMessage = document.createElement('div');
+        newMessage.className = 'message';
+        newMessage.innerHTML = '<span>服务器连接断开...</span> ';
+        chatBody.appendChild(newMessage)
+    }
+
+    // 发送按钮
+    function sendMessage() {
+        let messageInput = document.getElementById('message-input');
+        let message = messageInput.value.trim();
+
+        if (message !== '') {
+            socket.send(message)
+            messageInput.value = '';
+        }
+
+    }
+
+    // 关闭按钮
+    function closeConnect() {
+        socket.close()
+    }
+
+
+</script>
+</body>
+</html>
